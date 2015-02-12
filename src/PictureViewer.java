@@ -70,6 +70,9 @@ public class PictureViewer extends JFrame implements ActionListener
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		imagePaths = new ArrayList<File>();
 		imageLabel = new JLabel();
+		menuBar = new JMenuBar();
+		
+		setJMenuBar(menuBar);
 		
 		//************************Opening the file.
 		openFile();
@@ -121,6 +124,14 @@ public class PictureViewer extends JFrame implements ActionListener
 	}
 	
 	/**
+	 * Initializes all variables.
+	 */
+	private void initialize()
+	{
+		System.out.println("Initializing all variables.");
+	}
+	
+	/**
 	 * Initialize the image to be shown.
 	 */
 	private void initImage()
@@ -131,6 +142,45 @@ public class PictureViewer extends JFrame implements ActionListener
 			imageLabel.setIcon(new ImageIcon(imagePaths.get(selectedIndex).toString()));
 			getContentPane().add(imageLabel);
 		}
+	}
+	
+	/**
+	 * Initializes the menu bar for the picture viewer.
+	 * 
+	 * @return		The menu bar for the picture viewer.
+	 */
+	private void initMenuBar()
+	{
+		// Open file.
+		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK | Event.SHIFT_MASK));
+		openItem.setToolTipText("Open a file.");
+		openItem.addActionListener(this);
+		
+		fileMenu.add(openItem);
+		fileMenu.add(new JSeparator(SwingConstants.HORIZONTAL));
+		
+		// Close picture viewer.
+		closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK | Event.SHIFT_MASK));
+		closeItem.setToolTipText("Close the picture viewer.");
+		closeItem.addActionListener(this);
+		
+		fileMenu.add(closeItem);
+		
+		// Previous image.
+		prevItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK | Event.SHIFT_MASK));
+		prevItem.setToolTipText("Move to the previous image.");
+		prevItem.addActionListener(this);
+		
+		// Next image.
+		nextItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK | Event.SHIFT_MASK));
+		nextItem.setToolTipText("Move to the next image.");
+		nextItem.addActionListener(this);
+		
+		viewMenu.add(prevItem);
+		viewMenu.add(nextItem);
+		
+		menuBar.add(fileMenu);
+		menuBar.add(viewMenu);
 	}
 	
 	/**
