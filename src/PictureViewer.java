@@ -129,8 +129,8 @@ public class PictureViewer extends JFrame implements ActionListener
 		
 		// Buttons
 		buttonPanel = new JPanel();
-		nextButton = new JButton("Previous");
-		prevButton = new JButton("Next");
+		nextButton = new JButton("Next");
+		prevButton = new JButton("Previous");
 		initButtons();
 		
 		// Data Items
@@ -155,8 +155,8 @@ public class PictureViewer extends JFrame implements ActionListener
 		prevButton.addActionListener(this);
 		
 		buttonPanel.setLayout(new FlowLayout());
-		buttonPanel.add(nextButton);
 		buttonPanel.add(prevButton);
+		buttonPanel.add(nextButton);
 	}
 	
 	/**
