@@ -59,7 +59,7 @@ public class PictureViewer extends JFrame implements ActionListener
 	public PictureViewer()
 	{
 		//************************Initializing this frame.
-		getContentPane().setLayout(new GridLayout(2, 1));
+		getContentPane().setLayout(new GridLayout(1, 1));
 		setMinimumSize(new Dimension(700, 550));
 		setLocationRelativeTo(null);
 		
@@ -69,35 +69,13 @@ public class PictureViewer extends JFrame implements ActionListener
 		fileChooser = new JFileChooser();
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		imagePaths = new ArrayList<File>();
+		imageLabel = new JLabel();
 		
 		//************************Opening the file.
-		if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-		{
-		    try(DirectoryStream<Path> stream = Files.newDirectoryStream(fileChooser.getSelectedFile().toPath()))
-		    {
-		       for(Path entry : stream)
-		       {
-		    	   if(entry.toFile().isFile() && PathIsImage(entry))
-		    	   {
-		    		   imagePaths.add(entry.toFile());
-		    	   }
-		       }
-		    }
-		    catch(Exception ex)
-		    {
-		    	ex.printStackTrace();
-				System.exit(1);
-		    }
-		}
+		openFile();
 		
-		// Showing the image in the frame if there was one.
-		if(imagePaths.size() > 0)
-		{
-			for(File path : imagePaths)
-			{
-				System.out.println(path.toString());
-			}
-		}
+		//************************Initializing the image.
+		initImage();
 	}
 	
 	public static void main(String[] args)
@@ -111,6 +89,48 @@ public class PictureViewer extends JFrame implements ActionListener
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	/**
+	 * Opens a file and populates the image paths arraylist.
+	 */
+	private void openFile()
+	{
+		// If the user chooses a directory to open, try to get all contained file paths.
+		if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+		{
+		    try(DirectoryStream<Path> stream = Files.newDirectoryStream(fileChooser.getSelectedFile().toPath()))
+		    {
+		       for(Path entry : stream)
+		       {
+		    	   if(entry.toFile().isFile() && PathIsImage(entry))
+		    	   {
+		    		   imagePaths.add(entry.toFile());
+		    	   }
+		       }
+		       
+		       // Setting the maximum-index tracking variable.
+		       maxImageIndex = imagePaths.size() - 1;
+		    }
+		    catch(Exception ex)
+		    {
+		    	ex.printStackTrace();
+				System.exit(1);
+		    }
+		}
+	}
+	
+	/**
+	 * Initialize the image to be shown.
+	 */
+	private void initImage()
+	{
+		// Initializing the image in the frame if there was one.
+		if(imagePaths.size() > 0)
+		{
+			imageLabel.setIcon(new ImageIcon(imagePaths.get(selectedIndex).toString()));
+			getContentPane().add(imageLabel);
+		}
 	}
 	
 	/**
