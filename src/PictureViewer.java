@@ -14,15 +14,6 @@ import java.awt.*;
 public class PictureViewer extends JFrame implements ActionListener
 {
 	//*******************************************************************//
-	//*								GUIItems							*//
-	//*******************************************************************//
-	public JFileChooser fileChooser;
-	
-	public JMenuBar menuBar;
-	
-	public JLabel imageLabel;
-	
-	//*******************************************************************//
 	//*								MenuItems							*//
 	//*******************************************************************//
 	public JMenu fileMenu;
@@ -53,25 +44,31 @@ public class PictureViewer extends JFrame implements ActionListener
 	
 	public int selectedIndex;
 	
+	//*******************************************************************//
+	//*								GUIItems							*//
+	//*******************************************************************//
+	public JFileChooser fileChooser;
+	
+	public JMenuBar menuBar;
+	
+	public JLabel imageLabel;
+	
 	/**
 	 * Constructor for the PictureViewer.
 	 */
 	public PictureViewer()
 	{
 		//************************Initializing this frame.
-		getContentPane().setLayout(new GridLayout(1, 1));
-		setMinimumSize(new Dimension(700, 550));
-		setLocationRelativeTo(null);
-		
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Picture Viewer");
+		setLocationRelativeTo(null);
+		setMinimumSize(new Dimension(700, 550));
+		getContentPane().setLayout(new GridLayout(1, 1));
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
-		fileChooser = new JFileChooser();
-		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		imagePaths = new ArrayList<File>();
-		imageLabel = new JLabel();
-		menuBar = new JMenuBar();
+		//************************Initializing variables
+		initialize();
 		
+		// Setting menu bar after it has been initialized.
 		setJMenuBar(menuBar);
 		
 		//************************Opening the file.
@@ -95,59 +92,37 @@ public class PictureViewer extends JFrame implements ActionListener
 	}
 	
 	/**
-	 * Opens a file and populates the image paths arraylist.
-	 */
-	private void openFile()
-	{
-		// If the user chooses a directory to open, try to get all contained file paths.
-		if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-		{
-		    try(DirectoryStream<Path> stream = Files.newDirectoryStream(fileChooser.getSelectedFile().toPath()))
-		    {
-		       for(Path entry : stream)
-		       {
-		    	   if(entry.toFile().isFile() && PathIsImage(entry))
-		    	   {
-		    		   imagePaths.add(entry.toFile());
-		    	   }
-		       }
-		       
-		       // Setting the maximum-index tracking variable.
-		       maxImageIndex = imagePaths.size() - 1;
-		    }
-		    catch(Exception ex)
-		    {
-		    	ex.printStackTrace();
-				System.exit(1);
-		    }
-		}
-	}
-	
-	/**
 	 * Initializes all variables.
 	 */
 	private void initialize()
 	{
-		System.out.println("Initializing all variables.");
-	}
-	
-	/**
-	 * Initialize the image to be shown.
-	 */
-	private void initImage()
-	{
-		// Initializing the image in the frame if there was one.
-		if(imagePaths.size() > 0)
-		{
-			imageLabel.setIcon(new ImageIcon(imagePaths.get(selectedIndex).toString()));
-			getContentPane().add(imageLabel);
-		}
+		// Menu Items
+		fileMenu = new JMenu("File");
+		openItem = new JMenuItem("Open");
+		closeItem = new JMenuItem("Close");
+		viewMenu = new JMenu("View");
+		prevItem = new JMenuItem("Previous Image");
+		nextItem = new JMenuItem("Next Image");
+		
+		// Buttons
+		nextButton = new JButton("Previous");
+		prevButton = new JButton("Next");
+		
+		// Data Items
+		imagePaths = new ArrayList<File>();
+		maxImageIndex = 0;
+		selectedIndex = 0;
+		
+		// GUI Items
+		fileChooser = new JFileChooser();
+		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		menuBar = new JMenuBar();
+		initMenuBar();
+		imageLabel = new JLabel();
 	}
 	
 	/**
 	 * Initializes the menu bar for the picture viewer.
-	 * 
-	 * @return		The menu bar for the picture viewer.
 	 */
 	private void initMenuBar()
 	{
@@ -181,6 +156,48 @@ public class PictureViewer extends JFrame implements ActionListener
 		
 		menuBar.add(fileMenu);
 		menuBar.add(viewMenu);
+	}
+	
+	/**
+	 * Opens a file and populates the image paths arraylist.
+	 */
+	private void openFile()
+	{
+		// If the user chooses a directory to open, try to get all contained file paths.
+		if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+		{
+		    try(DirectoryStream<Path> stream = Files.newDirectoryStream(fileChooser.getSelectedFile().toPath()))
+		    {
+		       for(Path entry : stream)
+		       {
+		    	   if(entry.toFile().isFile() && PathIsImage(entry))
+		    	   {
+		    		   imagePaths.add(entry.toFile());
+		    	   }
+		       }
+		       
+		       // Setting the maximum-index tracking variable.
+		       maxImageIndex = imagePaths.size() - 1;
+		    }
+		    catch(Exception ex)
+		    {
+		    	ex.printStackTrace();
+				System.exit(1);
+		    }
+		}
+	}
+	
+	/**
+	 * Initialize the image to be shown.
+	 */
+	private void initImage()
+	{
+		// Initializing the image in the frame if there was one.
+		if(imagePaths.size() > 0)
+		{
+			imageLabel.setIcon(new ImageIcon(imagePaths.get(selectedIndex).toString()));
+			getContentPane().add(imageLabel);
+		}
 	}
 	
 	/**
