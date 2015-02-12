@@ -131,7 +131,6 @@ public class PictureViewer extends JFrame implements ActionListener
 		buttonPanel = new JPanel();
 		nextButton = new JButton("Next");
 		prevButton = new JButton("Previous");
-		initButtons();
 		
 		// Data Items
 		imagePaths = new ArrayList<File>();
@@ -214,6 +213,8 @@ public class PictureViewer extends JFrame implements ActionListener
 		       
 		       // Setting the maximum-index tracking variable.
 		       maxImageIndex = imagePaths.size() - 1;
+		       
+		       initButtons();
 		    }
 		    catch(Exception ex)
 		    {
