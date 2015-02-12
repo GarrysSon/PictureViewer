@@ -86,9 +86,24 @@ public class PictureViewer extends JFrame implements ActionListener
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		
+	public void actionPerformed(ActionEvent e)
+	{
+		if(e.getSource() == closeItem)
+		{
+			System.exit(0);
+		}
+		else if(e.getSource() == openItem)
+		{
+			System.out.println("Opening a new directory.");
+		}
+		else if(e.getSource() == nextItem)
+		{
+			System.out.println("Moving to the next item.");
+		}
+		else if(e.getSource() == prevItem)
+		{
+			System.out.println("Moving to the previous item.");
+		}
 	}
 	
 	/**
