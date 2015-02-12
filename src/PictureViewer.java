@@ -31,6 +31,8 @@ public class PictureViewer extends JFrame implements ActionListener
 	//*******************************************************************//
 	//*								Buttons								*//
 	//*******************************************************************//
+	public JPanel buttonPanel;
+	
 	public JButton nextButton;
 	
 	public JButton prevButton;
@@ -62,20 +64,21 @@ public class PictureViewer extends JFrame implements ActionListener
 		setTitle("Picture Viewer");
 		setLocationRelativeTo(null);
 		setMinimumSize(new Dimension(700, 550));
-		getContentPane().setLayout(new GridLayout(1, 1));
+		getContentPane().setLayout(new GridLayout(2, 1));
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
 		//************************Initializing variables
 		initialize();
-		
-		// Setting menu bar after it has been initialized.
-		setJMenuBar(menuBar);
 		
 		//************************Opening the file.
 		openFile();
 		
 		//************************Initializing the image.
 		initImage();
+		
+		// Setting menu bar and button panel after everything has been initialized.
+		setJMenuBar(menuBar);
+		getContentPane().add(buttonPanel);
 	}
 	
 	/**
@@ -101,11 +104,11 @@ public class PictureViewer extends JFrame implements ActionListener
 		{
 			System.out.println("Opening a new directory.");
 		}
-		else if(e.getSource() == nextItem)
+		else if(e.getSource() == nextItem || e.getSource() == nextButton)
 		{
 			nextImage();
 		}
-		else if(e.getSource() == prevItem)
+		else if(e.getSource() == prevItem || e.getSource() == prevButton)
 		{
 			prevImage();
 		}
@@ -125,8 +128,10 @@ public class PictureViewer extends JFrame implements ActionListener
 		nextItem = new JMenuItem("Next Image");
 		
 		// Buttons
+		buttonPanel = new JPanel();
 		nextButton = new JButton("Previous");
 		prevButton = new JButton("Next");
+		initButtons();
 		
 		// Data Items
 		imagePaths = new ArrayList<File>();
@@ -136,9 +141,22 @@ public class PictureViewer extends JFrame implements ActionListener
 		// GUI Items
 		fileChooser = new JFileChooser();
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		imageLabel = new JLabel();
 		menuBar = new JMenuBar();
 		initMenuBar();
-		imageLabel = new JLabel();
+	}
+	
+	/**
+	 * Initializes the buttons to move to different images.
+	 */
+	private void initButtons()
+	{
+		nextButton.addActionListener(this);
+		prevButton.addActionListener(this);
+		
+		buttonPanel.setLayout(new FlowLayout());
+		buttonPanel.add(nextButton);
+		buttonPanel.add(prevButton);
 	}
 	
 	/**
@@ -160,16 +178,16 @@ public class PictureViewer extends JFrame implements ActionListener
 		fileMenu.add(closeItem);
 		
 		// View menu in the menu bar.
-		prevItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK | Event.SHIFT_MASK));
-		prevItem.setToolTipText("Move to the previous image.");
-		prevItem.addActionListener(this);
-		
 		nextItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK | Event.SHIFT_MASK));
 		nextItem.setToolTipText("Move to the next image.");
 		nextItem.addActionListener(this);
 		
-		viewMenu.add(prevItem);
+		prevItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK | Event.SHIFT_MASK));
+		prevItem.setToolTipText("Move to the previous image.");
+		prevItem.addActionListener(this);
+		
 		viewMenu.add(nextItem);
+		viewMenu.add(prevItem);
 		
 		// Adding both the File and View menus to the menu bar.
 		menuBar.add(fileMenu);
