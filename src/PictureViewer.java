@@ -78,6 +78,11 @@ public class PictureViewer extends JFrame implements ActionListener
 		initImage();
 	}
 	
+	/**
+	 * The main method.
+	 * 
+	 * @param args			The passed in arguments.
+	 */
 	public static void main(String[] args)
 	{
 		PictureViewer picViewer = new PictureViewer();
@@ -98,11 +103,11 @@ public class PictureViewer extends JFrame implements ActionListener
 		}
 		else if(e.getSource() == nextItem)
 		{
-			System.out.println("Moving to the next item.");
+			nextImage();
 		}
 		else if(e.getSource() == prevItem)
 		{
-			System.out.println("Moving to the previous item.");
+			prevImage();
 		}
 	}
 	
@@ -141,27 +146,24 @@ public class PictureViewer extends JFrame implements ActionListener
 	 */
 	private void initMenuBar()
 	{
-		// Open file.
+		// File menu in the menu bar.
 		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK | Event.SHIFT_MASK));
 		openItem.setToolTipText("Open a file.");
 		openItem.addActionListener(this);
 		
-		fileMenu.add(openItem);
-		fileMenu.add(new JSeparator(SwingConstants.HORIZONTAL));
-		
-		// Close picture viewer.
 		closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK | Event.SHIFT_MASK));
 		closeItem.setToolTipText("Close the picture viewer.");
 		closeItem.addActionListener(this);
 		
+		fileMenu.add(openItem);
+		fileMenu.add(new JSeparator(SwingConstants.HORIZONTAL));
 		fileMenu.add(closeItem);
 		
-		// Previous image.
+		// View menu in the menu bar.
 		prevItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK | Event.SHIFT_MASK));
 		prevItem.setToolTipText("Move to the previous image.");
 		prevItem.addActionListener(this);
 		
-		// Next image.
 		nextItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK | Event.SHIFT_MASK));
 		nextItem.setToolTipText("Move to the next image.");
 		nextItem.addActionListener(this);
@@ -169,6 +171,7 @@ public class PictureViewer extends JFrame implements ActionListener
 		viewMenu.add(prevItem);
 		viewMenu.add(nextItem);
 		
+		// Adding both the File and View menus to the menu bar.
 		menuBar.add(fileMenu);
 		menuBar.add(viewMenu);
 	}
@@ -216,10 +219,10 @@ public class PictureViewer extends JFrame implements ActionListener
 	}
 	
 	/**
-	 * Tells whether the given path is an image.
+	 * Tells whether the given file path is an image.
 	 * 
-	 * @param entry		The path to the image.
-	 * @return			Whether the path is an image.
+	 * @param entry		The path to the file.
+	 * @return			Whether the file path is to an image.
 	 */
 	private static Boolean PathIsImage(Path entry)
 	{
@@ -245,5 +248,25 @@ public class PictureViewer extends JFrame implements ActionListener
 		);	
 		
 		return isImage;
+	}
+	
+	/**
+	 * Sets the image to be shown to the next image in the file.
+	 */
+	private void nextImage()
+	{
+		// Moves to the next index if within the accessible range, else move to the first image.
+		selectedIndex = (selectedIndex < maxImageIndex) ? (selectedIndex + 1) : 0;
+		imageLabel.setIcon(new ImageIcon(imagePaths.get(selectedIndex).toString()));
+	}
+	
+	/**
+	 * Sets the image to be shown to the previous image in the file.
+	 */
+	private void prevImage()
+	{
+		// Moves to the previous index if within the accessible range, else move to the last image.
+		selectedIndex = (selectedIndex > 0) ? (selectedIndex - 1) : maxImageIndex;
+		imageLabel.setIcon(new ImageIcon(imagePaths.get(selectedIndex).toString()));
 	}
 }
