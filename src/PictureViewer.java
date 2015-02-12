@@ -74,7 +74,7 @@ public class PictureViewer extends JFrame implements ActionListener
 		openFile();
 		
 		//************************Initializing the image.
-		initImage();
+		//initImage();
 		
 		// Setting menu bar and button panel after everything has been initialized.
 		setJMenuBar(menuBar);
@@ -102,6 +102,7 @@ public class PictureViewer extends JFrame implements ActionListener
 		}
 		else if(e.getSource() == openItem)
 		{
+			openFile();
 			System.out.println("Opening a new directory.");
 		}
 		else if(e.getSource() == nextItem || e.getSource() == nextButton)
@@ -164,11 +165,11 @@ public class PictureViewer extends JFrame implements ActionListener
 	private void initMenuBar()
 	{
 		// File menu in the menu bar.
-		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK | Event.SHIFT_MASK));
+		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
 		openItem.setToolTipText("Open a file.");
 		openItem.addActionListener(this);
 		
-		closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK | Event.SHIFT_MASK));
+		closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK));
 		closeItem.setToolTipText("Close the picture viewer.");
 		closeItem.addActionListener(this);
 		
@@ -177,11 +178,11 @@ public class PictureViewer extends JFrame implements ActionListener
 		fileMenu.add(closeItem);
 		
 		// View menu in the menu bar.
-		nextItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK | Event.SHIFT_MASK));
+		nextItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK));
 		nextItem.setToolTipText("Move to the next image.");
 		nextItem.addActionListener(this);
 		
-		prevItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK | Event.SHIFT_MASK));
+		prevItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK));
 		prevItem.setToolTipText("Move to the previous image.");
 		prevItem.addActionListener(this);
 		
@@ -203,18 +204,21 @@ public class PictureViewer extends JFrame implements ActionListener
 		{
 		    try(DirectoryStream<Path> stream = Files.newDirectoryStream(fileChooser.getSelectedFile().toPath()))
 		    {
-		       for(Path entry : stream)
-		       {
-		    	   if(entry.toFile().isFile() && PathIsImage(entry))
-		    	   {
-		    		   imagePaths.add(entry.toFile());
-		    	   }
-		       }
+		    	imagePaths.clear();
+		    	
+		    	for(Path entry : stream)
+		    	{
+		    		if(entry.toFile().isFile() && PathIsImage(entry))
+		    		{
+		    			imagePaths.add(entry.toFile());
+		    		}
+		    	}
 		       
-		       // Setting the maximum-index tracking variable.
-		       maxImageIndex = imagePaths.size() - 1;
+		    	// Setting the maximum-index tracking variable.
+		    	maxImageIndex = imagePaths.size() - 1;
 		       
-		       initButtons();
+		    	initImage();
+		    	initButtons();
 		    }
 		    catch(Exception ex)
 		    {
@@ -232,6 +236,7 @@ public class PictureViewer extends JFrame implements ActionListener
 		// Initializing the image in the frame if there was one.
 		if(imagePaths.size() > 0)
 		{
+			// BufferedImage instead of ImageIcon.
 			imageLabel.setIcon(new ImageIcon(imagePaths.get(selectedIndex).toString()));
 			getContentPane().add(imageLabel);
 		}
