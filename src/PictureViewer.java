@@ -1,8 +1,12 @@
 import java.util.ArrayList;
 import java.io.File;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.nio.file.*;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
+
 import java.awt.*;
 
 /**
@@ -60,24 +64,18 @@ public class PictureViewer extends JFrame implements ActionListener
 	 */
 	public PictureViewer()
 	{
-		//************************Initializing this frame.
 		setTitle("Picture Viewer");
 		setLocationRelativeTo(null);
 		setMinimumSize(new Dimension(700, 550));
 		getContentPane().setLayout(new GridLayout(2, 1));
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
-		//************************Initializing variables
 		initialize();
-		
-		//************************Opening the file.
 		openFile();
-		
-		//************************Initializing the image.
-		//initImage();
 		
 		// Setting menu bar and button panel after everything has been initialized.
 		setJMenuBar(menuBar);
+		getContentPane().add(imageLabel);
 		getContentPane().add(buttonPanel);
 	}
 	
@@ -103,7 +101,6 @@ public class PictureViewer extends JFrame implements ActionListener
 		else if(e.getSource() == openItem)
 		{
 			openFile();
-			System.out.println("Opening a new directory.");
 		}
 		else if(e.getSource() == nextItem || e.getSource() == nextButton)
 		{
@@ -132,6 +129,7 @@ public class PictureViewer extends JFrame implements ActionListener
 		buttonPanel = new JPanel();
 		nextButton = new JButton("Next");
 		prevButton = new JButton("Previous");
+		initButtons();
 		
 		// Data Items
 		imagePaths = new ArrayList<File>();
@@ -199,11 +197,14 @@ public class PictureViewer extends JFrame implements ActionListener
 	 */
 	private void openFile()
 	{
+		setVisible(false);
+		
 		// If the user chooses a directory to open, try to get all contained file paths.
 		if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
 		{
 		    try(DirectoryStream<Path> stream = Files.newDirectoryStream(fileChooser.getSelectedFile().toPath()))
 		    {
+		    	selectedIndex = 0;
 		    	imagePaths.clear();
 		    	
 		    	for(Path entry : stream)
@@ -216,9 +217,7 @@ public class PictureViewer extends JFrame implements ActionListener
 		       
 		    	// Setting the maximum-index tracking variable.
 		    	maxImageIndex = imagePaths.size() - 1;
-		       
 		    	initImage();
-		    	initButtons();
 		    }
 		    catch(Exception ex)
 		    {
@@ -226,6 +225,8 @@ public class PictureViewer extends JFrame implements ActionListener
 				System.exit(1);
 		    }
 		}
+		
+		setVisible(true);
 	}
 	
 	/**
@@ -235,11 +236,50 @@ public class PictureViewer extends JFrame implements ActionListener
 	{
 		// Initializing the image in the frame if there was one.
 		if(imagePaths.size() > 0)
-		{
-			// BufferedImage instead of ImageIcon.
-			imageLabel.setIcon(new ImageIcon(imagePaths.get(selectedIndex).toString()));
-			getContentPane().add(imageLabel);
+		{	
+			imageLabel.setIcon(scaleIcon());
 		}
+	}
+	
+	/**
+	 * Resizes the image label icon to the appropriate size.
+	 * 
+	 * @return			The image label icon scaled correctly.
+	 */
+	private ImageIcon scaleIcon()
+	{
+		// TODO: Fix the image scaling issue!
+		
+		Image image = new ImageIcon(imagePaths.get(selectedIndex).toString()).getImage();
+		int width = getScaledWidth(image.getWidth(imageLabel));
+		int height = getScaledHeight(image.getHeight(imageLabel));
+		Image newimg = image.getScaledInstance(width, height, Image.SCALE_FAST);
+		
+		return new ImageIcon(newimg);
+	}
+	
+	/**
+	 * Gets the scaled width for the image icon.
+	 * 
+	 * @param currentWidth	The current width of the image icon.
+	 * @return				The scaled width of the image icon.
+	 */
+	private int getScaledWidth(int currentWidth)
+	{
+		int width = 700;
+		return width;
+	}
+	
+	/**
+	 * Gets the scaled height for the image icon.
+	 * 
+	 * @param currentHeight	The current height of the image icon.
+	 * @return				The scaled height of the image icon.
+	 */
+	private int getScaledHeight(int currentHeight)
+	{
+		int height = 550;
+		return height;
 	}
 	
 	/**
@@ -281,7 +321,7 @@ public class PictureViewer extends JFrame implements ActionListener
 	{
 		// Moves to the next index if within the accessible range, else move to the first image.
 		selectedIndex = (selectedIndex < maxImageIndex) ? (selectedIndex + 1) : 0;
-		imageLabel.setIcon(new ImageIcon(imagePaths.get(selectedIndex).toString()));
+		imageLabel.setIcon(scaleIcon());
 	}
 	
 	/**
@@ -291,6 +331,6 @@ public class PictureViewer extends JFrame implements ActionListener
 	{
 		// Moves to the previous index if within the accessible range, else move to the last image.
 		selectedIndex = (selectedIndex > 0) ? (selectedIndex - 1) : maxImageIndex;
-		imageLabel.setIcon(new ImageIcon(imagePaths.get(selectedIndex).toString()));
+		imageLabel.setIcon(scaleIcon());
 	}
 }
