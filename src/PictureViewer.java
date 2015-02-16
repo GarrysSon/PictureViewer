@@ -36,10 +36,13 @@ public class PictureViewer extends JFrame implements ActionListener
 	//*								Buttons								*//
 	//*******************************************************************//
 	public JPanel buttonPanel;
+	public GridBagConstraints buttonConstr;
 	
 	public JButton nextButton;
+	public GridBagConstraints nextConstr;
 	
 	public JButton prevButton;
+	public GridBagConstraints prevConstr;
 	
 	//*******************************************************************//
 	//*								DataItems							*//
@@ -58,6 +61,7 @@ public class PictureViewer extends JFrame implements ActionListener
 	public JMenuBar menuBar;
 	
 	public JLabel imageLabel;
+	public GridBagConstraints imageConstr;
 	
 	/**
 	 * Constructor for the PictureViewer.
@@ -67,7 +71,7 @@ public class PictureViewer extends JFrame implements ActionListener
 		setTitle("Picture Viewer");
 		setLocationRelativeTo(null);
 		setMinimumSize(new Dimension(700, 550));
-		getContentPane().setLayout(new GridLayout(2, 1));
+		getContentPane().setLayout(new GridBagLayout());
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
 		initialize();
@@ -75,8 +79,8 @@ public class PictureViewer extends JFrame implements ActionListener
 		
 		// Setting menu bar and button panel after everything has been initialized.
 		setJMenuBar(menuBar);
-		getContentPane().add(imageLabel);
-		getContentPane().add(buttonPanel);
+		getContentPane().add(imageLabel, imageConstr);
+		getContentPane().add(buttonPanel, buttonConstr);
 	}
 	
 	/**
@@ -127,8 +131,13 @@ public class PictureViewer extends JFrame implements ActionListener
 		
 		// Buttons
 		buttonPanel = new JPanel();
+		buttonConstr = new GridBagConstraints();
+		
 		nextButton = new JButton("Next");
+		nextConstr = new GridBagConstraints();
+		
 		prevButton = new JButton("Previous");
+		prevConstr = new GridBagConstraints();
 		initButtons();
 		
 		// Data Items
@@ -139,7 +148,12 @@ public class PictureViewer extends JFrame implements ActionListener
 		// GUI Items
 		fileChooser = new JFileChooser();
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		
 		imageLabel = new JLabel();
+		imageConstr = new GridBagConstraints();
+		imageConstr.fill = GridBagConstraints.HORIZONTAL;
+		imageConstr.ipady = 40;
+		
 		menuBar = new JMenuBar();
 		initMenuBar();
 	}
@@ -149,12 +163,23 @@ public class PictureViewer extends JFrame implements ActionListener
 	 */
 	private void initButtons()
 	{
-		nextButton.addActionListener(this);
 		prevButton.addActionListener(this);
+		prevConstr.fill = GridBagConstraints.HORIZONTAL;
+		prevConstr.gridx = 0;
+		prevConstr.gridy = 0;
 		
-		buttonPanel.setLayout(new FlowLayout());
-		buttonPanel.add(prevButton);
-		buttonPanel.add(nextButton);
+		nextButton.addActionListener(this);
+		nextConstr.fill = GridBagConstraints.HORIZONTAL;
+		nextConstr.gridx = 1;
+		nextConstr.gridy = 0;
+		
+		buttonPanel.setLayout(new GridBagLayout());
+		buttonPanel.add(prevButton, prevConstr);
+		buttonPanel.add(nextButton, nextConstr);
+		buttonConstr.fill = GridBagConstraints.HORIZONTAL;
+		buttonConstr.ipadx = 100;
+		buttonConstr.gridx = 0;
+		buttonConstr.gridy = 1;
 	}
 	
 	/**
