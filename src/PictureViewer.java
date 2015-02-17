@@ -1,12 +1,8 @@
 import java.util.ArrayList;
 import java.io.File;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.nio.file.*;
-
-import javax.imageio.ImageIO;
 import javax.swing.*;
-
 import java.awt.*;
 
 /**
@@ -17,6 +13,10 @@ import java.awt.*;
 @SuppressWarnings("serial")
 public class PictureViewer extends JFrame implements ActionListener
 {
+	public static int IMAGE_WIDTH = 700;
+	
+	public static int IMAGE_HEIGHT = 550;
+	
 	//*******************************************************************//
 	//*								MenuItems							*//
 	//*******************************************************************//
@@ -31,6 +31,24 @@ public class PictureViewer extends JFrame implements ActionListener
 	public JMenuItem prevItem;
 	
 	public JMenuItem nextItem;
+	
+	//*******************************************************************//
+	//*								CommandItems						*//
+	//*******************************************************************//
+	public JPanel commandPanel;
+	public GridBagConstraints commandConstr;
+	
+	public JLabel commandLabel;
+	public GridBagConstraints labelConstr;
+	
+	public JTextField commandField;
+	public GridBagConstraints fieldConstr;
+	
+	public JButton commandSubmit;
+	public GridBagConstraints submitConstr;
+	
+	public JLabel commandError;
+	public GridBagConstraints errorConstr;
 	
 	//*******************************************************************//
 	//*								Buttons								*//
@@ -63,16 +81,21 @@ public class PictureViewer extends JFrame implements ActionListener
 	public JLabel imageLabel;
 	public GridBagConstraints imageConstr;
 	
+	public Image defaultImage;
+	
+	public Image dogImage;
+	
 	/**
 	 * Constructor for the PictureViewer.
 	 */
 	public PictureViewer()
 	{
-		setTitle("Picture Viewer");
-		setLocationRelativeTo(null);
-		setMinimumSize(new Dimension(700, 550));
+		setTitle("Inu Viewer");
 		getContentPane().setLayout(new GridBagLayout());
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		
+		defaultImage = new ImageIcon("InuViewer.jpg").getImage();
+		dogImage = new ImageIcon("happyInu.gif").getImage();
 		
 		initialize();
 		openFile();
@@ -81,6 +104,7 @@ public class PictureViewer extends JFrame implements ActionListener
 		setJMenuBar(menuBar);
 		getContentPane().add(imageLabel, imageConstr);
 		getContentPane().add(buttonPanel, buttonConstr);
+		getContentPane().add(commandPanel, commandConstr);
 	}
 	
 	/**
@@ -91,7 +115,9 @@ public class PictureViewer extends JFrame implements ActionListener
 	public static void main(String[] args)
 	{
 		PictureViewer picViewer = new PictureViewer();
+		picViewer.setMinimumSize(new Dimension(800, 800));
 		picViewer.pack();
+		picViewer.setLocationRelativeTo(null);
 		picViewer.setVisible(true);
 	}
 
@@ -114,6 +140,33 @@ public class PictureViewer extends JFrame implements ActionListener
 		{
 			prevImage();
 		}
+		else if(e.getSource() == commandField || e.getSource() == commandSubmit)
+		{
+			String temp = commandField.getText();
+			commandError.setText("");
+			
+			if(temp.equals("Next") || temp.equals("next"))
+			{
+				nextImage();
+			}
+			else if(temp.equals("Previous") || temp.equals("previous"))
+			{
+				prevImage();
+			}
+			else if(temp.equals("Default") || temp.equals("default"))
+			{
+				imageLabel.setIcon(defaultIcon());
+			}
+			else if(temp.equals("dog"))
+			{
+				imageLabel.setIcon(dogIcon());
+			}
+			else
+			{
+				commandField.setText("");
+				commandError.setText("The entered text is invalid. Please enter a valid command.");
+			}
+		}
 	}
 	
 	/**
@@ -128,6 +181,23 @@ public class PictureViewer extends JFrame implements ActionListener
 		viewMenu = new JMenu("View");
 		prevItem = new JMenuItem("Previous Image");
 		nextItem = new JMenuItem("Next Image");
+		
+		// Command
+		commandPanel = new JPanel();
+		commandConstr = new GridBagConstraints();
+		
+		commandLabel = new JLabel();
+		labelConstr = new GridBagConstraints();
+		
+		commandField = new JTextField();
+		fieldConstr = new GridBagConstraints();
+		
+		commandSubmit = new JButton("Submit");
+		submitConstr = new GridBagConstraints();
+		
+		commandError = new JLabel();
+		errorConstr = new GridBagConstraints();
+		initCommands();
 		
 		// Buttons
 		buttonPanel = new JPanel();
@@ -152,10 +222,45 @@ public class PictureViewer extends JFrame implements ActionListener
 		imageLabel = new JLabel();
 		imageConstr = new GridBagConstraints();
 		imageConstr.fill = GridBagConstraints.HORIZONTAL;
+		imageConstr.ipadx = 10;
 		imageConstr.ipady = 40;
 		
 		menuBar = new JMenuBar();
 		initMenuBar();
+	}
+	
+	/**
+	 * Initializes the command section to move to different images.
+	 */
+	private void initCommands()
+	{
+		commandLabel.setText("Command: ");
+		labelConstr.fill = GridBagConstraints.HORIZONTAL;
+		labelConstr.gridx = 0;
+		
+		commandField.addActionListener(this);
+		commandField.setColumns(20);
+		fieldConstr.fill = GridBagConstraints.HORIZONTAL;
+		fieldConstr.gridx = 1;
+		
+		commandSubmit.addActionListener(this);
+		submitConstr.fill = GridBagConstraints.HORIZONTAL;
+		submitConstr.gridx = 2;
+		
+		errorConstr.fill = GridBagConstraints.HORIZONTAL;
+		errorConstr.gridy = 1;
+		errorConstr.gridwidth = 3;
+		errorConstr.ipady = 10;
+		
+		commandPanel.setLayout(new GridBagLayout());
+		commandPanel.add(commandLabel, labelConstr);
+		commandPanel.add(commandField, fieldConstr);
+		commandPanel.add(commandSubmit, submitConstr);
+		commandPanel.add(commandError, errorConstr);
+		
+		commandConstr.ipadx = 25;
+		commandConstr.gridx = 0;
+		commandConstr.gridy = 2;
 	}
 	
 	/**
@@ -223,15 +328,15 @@ public class PictureViewer extends JFrame implements ActionListener
 	private void openFile()
 	{
 		setVisible(false);
+		selectedIndex = 0;
+		maxImageIndex = 0;
+    	imagePaths.clear();
 		
 		// If the user chooses a directory to open, try to get all contained file paths.
 		if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
 		{
 		    try(DirectoryStream<Path> stream = Files.newDirectoryStream(fileChooser.getSelectedFile().toPath()))
 		    {
-		    	selectedIndex = 0;
-		    	imagePaths.clear();
-		    	
 		    	for(Path entry : stream)
 		    	{
 		    		if(entry.toFile().isFile() && PathIsImage(entry))
@@ -242,7 +347,6 @@ public class PictureViewer extends JFrame implements ActionListener
 		       
 		    	// Setting the maximum-index tracking variable.
 		    	maxImageIndex = imagePaths.size() - 1;
-		    	initImage();
 		    }
 		    catch(Exception ex)
 		    {
@@ -251,6 +355,7 @@ public class PictureViewer extends JFrame implements ActionListener
 		    }
 		}
 		
+		initImage();
 		setVisible(true);
 	}
 	
@@ -264,6 +369,23 @@ public class PictureViewer extends JFrame implements ActionListener
 		{	
 			imageLabel.setIcon(scaleIcon());
 		}
+		else
+		{
+			imageLabel.setIcon(defaultIcon());
+		}
+	}
+	
+	/**
+	 * Resizes the dog image icon to the appropriate size.
+	 * 
+	 * @return			The image label icon scaled correctly.
+	 */
+	private ImageIcon dogIcon()
+	{
+		Dimension temp = getScaledDimension(dogImage.getWidth(imageLabel), dogImage.getHeight(imageLabel));
+		Image newimg = dogImage.getScaledInstance(temp.width, temp.height, Image.SCALE_FAST);
+		
+		return new ImageIcon(newimg);
 	}
 	
 	/**
@@ -273,38 +395,24 @@ public class PictureViewer extends JFrame implements ActionListener
 	 */
 	private ImageIcon scaleIcon()
 	{
-		// TODO: Fix the image scaling issue!
-		
 		Image image = new ImageIcon(imagePaths.get(selectedIndex).toString()).getImage();
-		int width = getScaledWidth(image.getWidth(imageLabel));
-		int height = getScaledHeight(image.getHeight(imageLabel));
-		Image newimg = image.getScaledInstance(width, height, Image.SCALE_FAST);
+		Dimension temp = getScaledDimension(image.getWidth(imageLabel), image.getHeight(imageLabel));
+		Image newimg = image.getScaledInstance(temp.width, temp.height, Image.SCALE_FAST);
 		
 		return new ImageIcon(newimg);
 	}
 	
 	/**
-	 * Gets the scaled width for the image icon.
+	 * Resizes the default image icon to the appropriate size.
 	 * 
-	 * @param currentWidth	The current width of the image icon.
-	 * @return				The scaled width of the image icon.
+	 * @return			The image label icon scaled correctly.
 	 */
-	private int getScaledWidth(int currentWidth)
+	public ImageIcon defaultIcon()
 	{
-		int width = 700;
-		return width;
-	}
-	
-	/**
-	 * Gets the scaled height for the image icon.
-	 * 
-	 * @param currentHeight	The current height of the image icon.
-	 * @return				The scaled height of the image icon.
-	 */
-	private int getScaledHeight(int currentHeight)
-	{
-		int height = 550;
-		return height;
+		Dimension temp = getScaledDimension(defaultImage.getWidth(imageLabel), defaultImage.getHeight(imageLabel));
+		Image newimg = defaultImage.getScaledInstance(temp.width, temp.height, Image.SCALE_FAST);
+		
+		return new ImageIcon(newimg);
 	}
 	
 	/**
@@ -344,9 +452,17 @@ public class PictureViewer extends JFrame implements ActionListener
 	 */
 	private void nextImage()
 	{
-		// Moves to the next index if within the accessible range, else move to the first image.
-		selectedIndex = (selectedIndex < maxImageIndex) ? (selectedIndex + 1) : 0;
-		imageLabel.setIcon(scaleIcon());
+		if(maxImageIndex > 0)
+		{
+			// Moves to the next index if within the accessible range, else move to the first image.
+			selectedIndex = (selectedIndex < maxImageIndex) ? (selectedIndex + 1) : 0;
+			imageLabel.setIcon(scaleIcon());
+		}
+		else
+		{
+			// Sets the icon to the default image icon.
+			imageLabel.setIcon(defaultIcon());
+		}
 	}
 	
 	/**
@@ -354,8 +470,52 @@ public class PictureViewer extends JFrame implements ActionListener
 	 */
 	private void prevImage()
 	{
-		// Moves to the previous index if within the accessible range, else move to the last image.
-		selectedIndex = (selectedIndex > 0) ? (selectedIndex - 1) : maxImageIndex;
-		imageLabel.setIcon(scaleIcon());
+		if(maxImageIndex > 0)
+		{
+			// Moves to the previous index if within the accessible range, else move to the last image.
+			selectedIndex = (selectedIndex > 0) ? (selectedIndex - 1) : maxImageIndex;
+			imageLabel.setIcon(scaleIcon());
+		}
+		else
+		{
+			// Sets the icon to the default image icon.
+			imageLabel.setIcon(defaultIcon());
+		}
+	}
+	
+	/**
+	 * Gets the dimension for the newly scaled image.
+	 * 
+	 * @param origWidth		The width of the original image.
+	 * @param origHeight	The height of the original image.
+	 * 
+	 * @return				The new dimension of which to scale the image.
+	 */
+	public Dimension getScaledDimension(int origWidth, int origHeight)
+	{
+	    int boundWidth = IMAGE_WIDTH;
+	    int boundHeight = IMAGE_HEIGHT;
+	    int newWidth = origWidth;
+	    int newHeight = origHeight;
+	    
+	    // first check if we need to scale width
+	    if(origWidth > boundWidth)
+	    {
+	        //scale width to fit
+	    	newWidth = boundWidth;
+	        //scale height to maintain aspect ratio
+	    	newHeight = (newWidth * origHeight) / origWidth;
+	    }
+	    
+	    // then check if we need to scale even with the new height
+	    if(newHeight > boundHeight)
+	    {
+	        //scale height to fit instead
+	    	newHeight = boundHeight;
+	        //scale width to maintain aspect ratio
+	        newWidth = (newHeight * origWidth) / origHeight;
+	    }
+	    
+	    return new Dimension(newWidth, newHeight);
 	}
 }
