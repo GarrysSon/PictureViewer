@@ -78,6 +78,9 @@ public class PictureViewer extends JFrame implements ActionListener
 	
 	public JMenuBar menuBar;
 	
+	public JPanel imagePanel;
+	public GridBagConstraints imgPanelConstr;
+	
 	public JLabel imageLabel;
 	public GridBagConstraints imageConstr;
 	
@@ -102,7 +105,7 @@ public class PictureViewer extends JFrame implements ActionListener
 		
 		// Setting menu bar and button panel after everything has been initialized.
 		setJMenuBar(menuBar);
-		getContentPane().add(imageLabel, imageConstr);
+		getContentPane().add(imagePanel, imgPanelConstr);
 		getContentPane().add(buttonPanel, buttonConstr);
 		getContentPane().add(commandPanel, commandConstr);
 	}
@@ -220,10 +223,27 @@ public class PictureViewer extends JFrame implements ActionListener
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		
 		imageLabel = new JLabel();
+		imageLabel.addMouseListener(new MouseAdapter()
+		{
+			@Override
+	        public void mouseClicked(MouseEvent e)
+			{
+	            nextImage();
+	        }
+		});
+		
 		imageConstr = new GridBagConstraints();
 		imageConstr.fill = GridBagConstraints.HORIZONTAL;
-		imageConstr.ipadx = 10;
-		imageConstr.ipady = 40;
+		
+		imagePanel = new JPanel();
+		imagePanel.setMinimumSize(new Dimension(IMAGE_WIDTH, IMAGE_HEIGHT));
+		imagePanel.setMaximumSize(new Dimension(IMAGE_WIDTH, IMAGE_HEIGHT));
+		imagePanel.setBackground(Color.BLACK);
+		imagePanel.add(imageLabel, imageConstr);
+		
+		imgPanelConstr = new GridBagConstraints();
+		imgPanelConstr.fill = GridBagConstraints.HORIZONTAL;
+		imgPanelConstr.anchor = GridBagConstraints.CENTER;
 		
 		menuBar = new JMenuBar();
 		initMenuBar();
@@ -484,7 +504,7 @@ public class PictureViewer extends JFrame implements ActionListener
 	}
 	
 	/**
-	 * Gets the dimension for the newly scaled image.
+	 * Gets the dimension for the newly scaled image to fill the max height.
 	 * 
 	 * @param origWidth		The width of the original image.
 	 * @param origHeight	The height of the original image.
@@ -493,28 +513,12 @@ public class PictureViewer extends JFrame implements ActionListener
 	 */
 	public Dimension getScaledDimension(int origWidth, int origHeight)
 	{
-	    int boundWidth = IMAGE_WIDTH;
-	    int boundHeight = IMAGE_HEIGHT;
-	    int newWidth = origWidth;
-	    int newHeight = origHeight;
+		int newHeight = 0;
+	    int newWidth = 0;
 	    
-	    // first check if we need to scale width
-	    if(origWidth > boundWidth)
-	    {
-	        //scale width to fit
-	    	newWidth = boundWidth;
-	        //scale height to maintain aspect ratio
-	    	newHeight = (newWidth * origHeight) / origWidth;
-	    }
-	    
-	    // then check if we need to scale even with the new height
-	    if(newHeight > boundHeight)
-	    {
-	        //scale height to fit instead
-	    	newHeight = boundHeight;
-	        //scale width to maintain aspect ratio
-	        newWidth = (newHeight * origWidth) / origHeight;
-	    }
+	    // Scale to max height.
+    	newHeight = IMAGE_HEIGHT;
+        newWidth = (newHeight * origWidth) / origHeight;
 	    
 	    return new Dimension(newWidth, newHeight);
 	}
